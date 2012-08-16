@@ -54,7 +54,7 @@ export {
 
 	## Regular expression that matches US Social Security Numbers loosely.
 	## It's unlikely that you will want to change this.
-	const ssn_regex = /([^0-9\-\.=\/\\]|^)\0?[0-6](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){4}([^0-9\-\.=\/\\]|$)/ &redef;
+	const ssn_regex = /([^0-9\-\.=\/\\%_]|^)\0?[0-6](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){4}([^0-9\-\.=\/\\%_]|$)/ &redef;
 
 	## Separators for SSNs to assist in validation.  It's unlikely that you
 	## will want to change this.
@@ -149,7 +149,7 @@ function check_ssns(c: connection, data: string): bool
 				byte_count = |redacted_data| - begin;
 
 			local trimmed_data = sub_bytes(redacted_data, begin, byte_count);
-			
+
 			NOTICE([$note=Found,
 			        $conn=c,
 			        $msg=fmt("Redacted excerpt of disclosed ssn session: %s", trimmed_data),
