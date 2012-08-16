@@ -25,10 +25,20 @@ export {
 		## Data that was received when the SSN was discovered.
 		data: string  &log;
 	};
+
+	type StateRange: record {
+		## The name of the state this range represents.
+		state: string &optional;
+		## Value representing the beginning of the state range.
+		low: count;
+		## Value representing the end of the state range.
+		high: count;
+	};
 	
-	## You must redef this variable with a normalized list of SSNs.
-	## Example for redefining this variable... (huge sets are handled easily)
-	const org_list: set[string] &redef;
+	## A file meant for the input framework to read in.  It only needs
+	## to contain a list of SSNs and the SSNs should be put
+	## in without any separators (e.g. 123456789).
+	const ssn_file = "" &redef;
 
 	## This is an alternate to acquiring a list of known SSNs held
 	## at your business/university.  This will certainly be the quickest
@@ -40,12 +50,12 @@ export {
 	##         For example, a state university can probably assume that many 
 	##         SSNs they hold will be for people from that state or possibly
 	##         neighboring states.
-	const prefixes = {
-		[$state="Ohio",         $low=268, $high=302],
-		[$state="Pennsylvania", $low=159, $high=211],
-		[$state="Indiana",      $low=303, $high=317],
-		[$state="West Virginia",$low=233, $high=236],
-		[$state="Michigan",     $low=362, $high=386],
+	const prefixes: set[StateRange] = {
+		#[$state="Ohio",         $low=268, $high=302],
+		#[$state="Pennsylvania", $low=159, $high=211],
+		#[$state="Indiana",      $low=303, $high=317],
+		#[$state="West Virginia",$low=233, $high=236],
+		#[$state="Michigan",     $low=362, $high=386],
 	} &redef;
 
 	## Regular expression that matches US Social Security Numbers loosely.
@@ -66,9 +76,33 @@ export {
 	const redaction_summary_length = 200 &redef;
 }
 
+# the internal list of "known SSNs" which is populated through the intelligence framework.
+global ssn_list: set[string] = {};
+
+
+type InputVal: record {
+	s: string;
+};
+
+event line(description: Input::EventDescription, tpe: Input::Event, s: string)
+	{
+	add ssn_list[s];
+	}
+
 event bro_init() &priority=5
 	{
 	Log::create_stream(SsnExposure::LOG, [$columns=Info]);
+	
+	if ( ssn_file != "" )
+		{
+		Input::add_event([$source=ssn_file, 
+		                  $name="ssn-exposure", 
+		                  $reader=Input::READER_RAW,
+		                  $mode=Input::REREAD,
+		                  $want_record=F,
+		                  $fields=InputVal,
+		                  $ev=line]);
+		}
 	}
 
 # This function is used for validating and notifying about SSNs in a string.
@@ -102,7 +136,7 @@ function check_ssns(c: connection, data: string): bool
 				}
 			}
 		
-		if ( |org_list| > 0 && ssn in org_list )
+		if ( |ssn_list| > 0 && ssn in ssn_list )
 			{
 			it_matched = T;
 			}
@@ -121,7 +155,7 @@ function check_ssns(c: connection, data: string): bool
 				byte_count = |redacted_data| - begin;
 
 			local trimmed_data = sub_bytes(redacted_data, begin, byte_count);
-
+			print trimmed_data;
 			NOTICE([$note=Found,
 			        $conn=c,
 			        $msg=fmt("Redacted excerpt of disclosed ssn session: %s", trimmed_data),
