@@ -12,7 +12,7 @@ Installation
 	git clone git://github.com/sethhall/ssn-exposure.git
 	echo "@load ssn-exposure" >> local.bro
 
-After the ssn-exposure module is loaded, follow the configuration step below.  One or both of the following options must be done or the script won't do anything.
+After the ssn-exposure module is loaded, follow the configuration examples below.  One or both of the following options must be done or the script won't do anything.
 
 Configuration
 -------------
