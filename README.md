@@ -14,15 +14,20 @@ Examples
 Prefix configuration
 ~~~~~~~~~~~~~~~~~~~~
 
+Configure likely state prefixes in local.bro:
+
 	redef SsnExposure::prefixes += {
 		[$state="Ohio",         $low=268, $high=302],
 		[$state="Pennsylvania", $low=159, $high=211],
 	};
 
+
 SSN list configuration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-redef SsnExposure::ssn_file = "/var/data/ssn-list.txt";
+Configure the SSN list file in local.bro:
+
+	redef SsnExposure::ssn_file = "/var/data/ssn-list.txt";
 
 The file on disk should look like this:
 
@@ -31,4 +36,4 @@ The file on disk should look like this:
 	123456777
 	123456666
 
-This data will be reread everytime the file changes at runtime too.
+This file will be reread everytime it changes at runtime.
