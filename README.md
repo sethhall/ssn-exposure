@@ -12,7 +12,7 @@ Examples
 --------
 
 Prefix configuration
-~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^
 
 Configure likely state prefixes in local.bro:
 
@@ -24,7 +24,7 @@ Configure likely state prefixes in local.bro:
 This method is more prone to false positives than the next method, but it's quick and easy to begin using after finding the relevant state prefixes from: http://www.mrfa.org/ssn.htm
 
 SSN list configuration
-~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^
 
 Configure the SSN list file in local.bro:
 
