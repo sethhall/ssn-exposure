@@ -50,13 +50,7 @@ export {
 	##         For example, a state university can probably assume that many 
 	##         SSNs they hold will be for people from that state or possibly
 	##         neighboring states.
-	const prefixes: set[StateRange] = {
-		#[$state="Ohio",         $low=268, $high=302],
-		#[$state="Pennsylvania", $low=159, $high=211],
-		#[$state="Indiana",      $low=303, $high=317],
-		#[$state="West Virginia",$low=233, $high=236],
-		#[$state="Michigan",     $low=362, $high=386],
-	} &redef;
+	const prefixes: set[StateRange] = {} &redef;
 
 	## Regular expression that matches US Social Security Numbers loosely.
 	## It's unlikely that you will want to change this.
@@ -155,7 +149,7 @@ function check_ssns(c: connection, data: string): bool
 				byte_count = |redacted_data| - begin;
 
 			local trimmed_data = sub_bytes(redacted_data, begin, byte_count);
-			print trimmed_data;
+			
 			NOTICE([$note=Found,
 			        $conn=c,
 			        $msg=fmt("Redacted excerpt of disclosed ssn session: %s", trimmed_data),
