@@ -14,11 +14,10 @@ Examples
 Prefix configuration
 ~~~~~~~~~~~~~~~~~~~~
 
-redef SsnExposure::prefixes += {
-	[$state="Ohio",         $low=268, $high=302],
-	[$state="Pennsylvania", $low=159, $high=211],
-};
-
+	redef SsnExposure::prefixes += {
+		[$state="Ohio",         $low=268, $high=302],
+		[$state="Pennsylvania", $low=159, $high=211],
+	};
 
 SSN list configuration
 ~~~~~~~~~~~~~~~~~~~~~~
