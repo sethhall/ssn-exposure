@@ -50,13 +50,20 @@ export {
 
 	## Regular expression that matches US Social Security Numbers loosely.
 	## It's unlikely that you will want to change this.
-	const ssn_regex = /([^0-9]|^)\0?[0-6](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){4}([^0-9]|$)/ &redef;
+	const ssn_regex = /([^0-9\-\.=\/\\]|^)\0?[0-6](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){4}([^0-9\-\.=\/\\]|$)/ &redef;
 
 	## Separators for SSNs to assist in validation.  It's unlikely that you
 	## will want to change this.
 	const ssn_separators = /\..*\./ | 
 	                       /\-.*\-/ | 
 	                       /[:blank:].*[:blank:]/ &redef;
+
+	## The string used for redaction in notices.
+	const redaction_string = " XXX-XX-XXXX " &redef;
+
+	## The number of bytes around the discovered and redacted SSN that is used 
+	## as a summary in notices.
+	const redaction_summary_length = 200 &redef;
 }
 
 event bro_init() &priority=5
@@ -72,8 +79,8 @@ function check_ssns(c: connection, data: string): bool
 	for ( ssnp in ssnps )
 		{
 		# Remove non-numeric character at beginning and end of string.
-		ssnp = sub(ssnp, /^[^0-9]/, "");
-		ssnp = sub(ssnp, /[^0-9]$/, "");
+		ssnp = sub(ssnp, /^[^0-9]*/, "");
+		ssnp = sub(ssnp, /[^0-9]*$/, "");
 
 		if ( ssn_separators !in ssnp )
 			next;
@@ -102,9 +109,22 @@ function check_ssns(c: connection, data: string): bool
 		
 		if ( it_matched )
 			{
+			local redacted_data = gsub(data, ssn_regex, redaction_string);
+			local ssn_location = strstr(redacted_data, redaction_string);
+
+			local begin = 0;
+			if ( ssn_location > (redaction_summary_length/2) )
+				begin = ssn_location - (redaction_summary_length/2);
+			
+			local byte_count = redaction_summary_length;
+			if ( begin + redaction_summary_length > |redacted_data| )
+				byte_count = |redacted_data| - begin;
+
+			local trimmed_data = sub_bytes(redacted_data, begin, byte_count);
+
 			NOTICE([$note=Found,
 			        $conn=c,
-			        $msg=fmt("Contents of disclosed ssn session: %s", data),
+			        $msg=fmt("Redacted excerpt of disclosed ssn session: %s", trimmed_data),
 			        $sub=ssn]);
 
 			local log: Info = [$ts=network_time(), 
