@@ -21,7 +21,7 @@ export {
 		## Connection details.
 		id:   conn_id &log;
 		## SSN that was discovered.
-		ssn:  string  &log;
+		ssn:  string  &log &optional;
 		## Data that was received when the SSN was discovered.
 		data: string  &log;
 	};
@@ -52,6 +52,11 @@ export {
 	##         neighboring states.
 	const prefixes: set[StateRange] = {} &redef;
 
+	## If you want to avoid creating new PII logs with Bro, you can redact the 
+	## ssn_exposure log with this option.  Notices are automatically and
+	## unchangeably redacted.
+	const redact_log = F &redef;
+
 	## Regular expression that matches US Social Security Numbers loosely.
 	## It's unlikely that you will want to change this.
 	const ssn_regex = /([^0-9\-\.=\/\\%_]|^)\0?[0-6](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){2}\0?[\.\-[:blank:]](\0?[0-9]){4}([^0-9\-\.=\/\\%_]|$)/ &redef;
@@ -62,8 +67,8 @@ export {
 	                       /\-.*\-/ | 
 	                       /[:blank:].*[:blank:]/ &redef;
 
-	## The string used for redaction in notices.
-	const redaction_string = " XXX-XX-XXXX " &redef;
+	## The character used for redaction to replace all numbers.
+	const redaction_char = "X" &redef;
 
 	## The number of bytes around the discovered and redacted SSN that is used 
 	## as a summary in notices.
@@ -137,8 +142,23 @@ function check_ssns(c: connection, data: string): bool
 		
 		if ( it_matched )
 			{
-			local redacted_data = gsub(data, ssn_regex, redaction_string);
-			local ssn_location = strstr(redacted_data, redaction_string);
+			local parts = split_all(data, ssn_regex);
+			local ssn_match = "";
+			local redacted_ssn = "";
+			for ( i in parts )
+				{
+				if ( i % 2 == 0 )
+					{
+					# Redact all SSN matches and save one back for 
+					# finding it's location.
+					ssn_match = parts[i];
+					parts[i] = gsub(parts[i], /[0-9]/, redaction_char);
+					redacted_ssn = parts[i];
+					}
+				}
+
+			local redacted_data = join_string_array("", parts);
+			local ssn_location = strstr(data, ssn_match);
 
 			local begin = 0;
 			if ( ssn_location > (redaction_summary_length/2) )
@@ -153,11 +173,13 @@ function check_ssns(c: connection, data: string): bool
 			NOTICE([$note=Found,
 			        $conn=c,
 			        $msg=fmt("Redacted excerpt of disclosed ssn session: %s", trimmed_data),
-			        $sub=ssn]);
+			        $identity=cat(c$id$orig_h,c$id$resp_h)]);
 
 			local log: Info = [$ts=network_time(), 
 			                   $uid=c$uid, $id=c$id,
-			                   $ssn=ssn, $data=data];
+			                   $ssn=(redact_log ? redacted_ssn : ssn_match),
+			                   $data=(redact_log ? redacted_data : data)];
+
 			Log::write(SsnExposure::LOG, log);
 
 			return T;
