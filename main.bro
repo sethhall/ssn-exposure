@@ -121,7 +121,7 @@ function check_ssns(c: connection, data: string): bool
 		# Remove all non-numerics
 		local clean_ssnp = gsub(ssnp, /[^0-9]/, "");
 		# Strip off any leading chars
-		local ssn = sub_bytes(clean_ssnp, byte_len(clean_ssnp)-8, 9);
+		local ssn = sub_bytes(clean_ssnp, |clean_ssnp|-8, 9);
 
 		local it_matched = F;
 		if ( |prefixes| > 0 )
