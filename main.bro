@@ -63,9 +63,9 @@ export {
 
 	## Separators for SSNs to assist in validation.  It's unlikely that you
 	## will want to change this.
-	const ssn_separators = /\..*\./ | 
-	                       /\-.*\-/ | 
-	                       /[:blank:].*[:blank:]/ &redef;
+	const ssn_separators = /\...\./ | 
+	                       /\-..\-/ | 
+	                       /[:blank:]..[:blank:]/ &redef;
 
 	## The character used for redaction to replace all numbers.
 	const redaction_char = "X" &redef;
@@ -173,7 +173,7 @@ function check_ssns(c: connection, data: string): bool
 			NOTICE([$note=Found,
 			        $conn=c,
 			        $msg=fmt("Redacted excerpt of disclosed ssn session: %s", trimmed_data),
-			        $identity=cat(c$id$orig_h,c$id$resp_h)]);
+			        $identifer=cat(c$id$orig_h,c$id$resp_h)]);
 
 			local log: Info = [$ts=network_time(), 
 			                   $uid=c$uid, $id=c$id,
