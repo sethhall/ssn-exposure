@@ -173,7 +173,7 @@ function check_ssns(c: connection, data: string): bool
 			NOTICE([$note=Found,
 			        $conn=c,
 			        $msg=fmt("Redacted excerpt of disclosed ssn session: %s", trimmed_data),
-			        $identifer=cat(c$id$orig_h,c$id$resp_h)]);
+			        $identifier=cat(c$id$orig_h,c$id$resp_h)]);
 
 			local log: Info = [$ts=network_time(), 
 			                   $uid=c$uid, $id=c$id,
