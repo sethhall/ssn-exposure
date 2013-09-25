@@ -1,7 +1,7 @@
 SSN Exposure
 ============
 
-Detect US Social Security Numbers with Bro.  This script only works with Bro 2.1.
+Detect US Social Security Numbers with Bro.  This script only works with Bro 2.1 and 2.2.
 
 Installation
 ------------
