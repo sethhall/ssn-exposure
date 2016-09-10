@@ -1,10 +1,25 @@
 SSN Exposure
 ============
 
-Detect US Social Security Numbers with Bro.  This script only works with Bro 2.1 and 2.2.
+Detect US Social Security Numbers with Bro.  This script only works with Bro 2.4+.
 
 Installation
 ------------
+
+Bro Package Manager
+*******************
+
+This is a test for the new Bro package manager.  If you don't have the package
+manager and you don't want to work with early code please use the alternate 
+manual installation method.
+
+::
+
+	bro-pkg refresh
+	bro-pkg install ssn-exposure
+
+Alternate Manual Installation
+*****************************
 
 ::
 

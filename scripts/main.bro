@@ -142,10 +142,11 @@ function check_ssns(c: connection, data: string): bool
 		
 		if ( it_matched )
 			{
-			local parts = split_all(data, ssn_regex);
+			local parts = split_string_all(data, ssn_regex);
 			local ssn_match = "";
 			local redacted_ssn = "";
-			for ( i in parts )
+			# take a copy to avoid modifying the vector while iterating.
+			for ( i in copy(parts) )
 				{
 				if ( i % 2 == 0 )
 					{
@@ -157,7 +158,7 @@ function check_ssns(c: connection, data: string): bool
 					}
 				}
 
-			local redacted_data = join_string_array("", parts);
+			local redacted_data = join_string_vec(parts, "");
 			local ssn_location = strstr(data, ssn_match);
 
 			local begin = 0;
@@ -189,24 +190,20 @@ function check_ssns(c: connection, data: string): bool
 	}
 
 
-event http_entity_data(c: connection, is_orig: bool, length: count, data: string)
+event SsnExposure::stream_data(f: fa_file, data: string)
 	{
+	local c: connection;
+	for ( id in f$conns )
+		{
+		c = f$conns[id];
+		break;
+		}
 	if ( c$start_time > network_time()-10secs )
 		check_ssns(c, data);
 	}
 
-event mime_segment_data(c: connection, length: count, data: string)
+event file_new(f: fa_file)
 	{
-	if ( c$start_time > network_time()-10secs )
-		check_ssns(c, data);
-	}
-
-# This is used if the signature based technique is in use
-function validate_ssn_match(state: signature_state, data: string): bool
-	{
-	# TODO: Don't handle HTTP data this way.
-	if ( /^GET/ in data )
-		return F;
-
-	return check_ssns(state$conn, data);
+	Files::add_analyzer(f, Files::ANALYZER_DATA_EVENT, 
+	                    [$stream_event=SsnExposure::stream_data]);
 	}
