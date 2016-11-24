@@ -1,3 +1,4 @@
 [package]
-version = 1.0.0
+description = Detect and log US Social Security numbers.
+tags = file analysis, social security number, ssn, dlp, data loss
 script_dir = scripts
