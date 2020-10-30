@@ -52,7 +52,7 @@ export {
 	##         neighboring states.
 	const prefixes: set[StateRange] = {} &redef;
 
-	## If you want to avoid creating new PII logs with Bro, you can redact the 
+	## If you want to avoid creating new PII logs with Zeek, you can redact the 
 	## ssn_exposure log with this option.  Notices are automatically and
 	## unchangeably redacted.
 	const redact_log = F &redef;
@@ -88,7 +88,7 @@ event line(description: Input::EventDescription, tpe: Input::Event, s: string)
 	add ssn_list[s];
 	}
 
-event bro_init() &priority=5
+event zeek_init() &priority=5
 	{
 	Log::create_stream(SsnExposure::LOG, [$columns=Info]);
 	

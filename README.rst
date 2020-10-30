@@ -1,31 +1,31 @@
 SSN Exposure
 ============
 
-Detect US Social Security Numbers with Bro.  This script only works with Bro 2.4+.
+Detect US Social Security Numbers with Zeek.  This script only works with Zeek 3.0+.
 
 Installation
 ------------
 
-Bro Package Manager
-*******************
+Zeek Package Manager
+********************
 
-This is a test for the new Bro package manager.  If you don't have the package
+This is a test for the new Zeek package manager.  If you don't have the package
 manager and you don't want to work with early code please use the alternate 
 manual installation method.
 
 ::
 
-	bro-pkg refresh
-	bro-pkg install ssn-exposure
+	zkg refresh
+	zkg install ssn-exposure
 
 Alternate Manual Installation
 *****************************
 
 ::
 
-	cd <prefix>/share/bro/site/
+	cd <prefix>/share/zeek/site/
 	git clone git://github.com/sethhall/ssn-exposure.git
-	echo "@load ssn-exposure" >> local.bro
+	echo "@load ssn-exposure" >> local.zeek
 
 After the ssn-exposure module is loaded, follow the configuration examples below.  One or both of the following options must be done or the script won't do anything.
 
@@ -42,7 +42,7 @@ Prefix configuration
 
 This method is more prone to false positives than the next method, but it's quick and easy to begin using after finding the relevant state prefixes from: http://www.mrfa.org/ssn.htm
 
-Configure likely state prefixes in local.bro::
+Configure likely state prefixes in local.zeek::
 
 	redef SsnExposure::prefixes += {
 		[$state="Ohio",         $low=268, $high=302],
@@ -54,7 +54,7 @@ SSN list configuration
 
 A list of "known SSNs" which will be used for validation after candidate values are extracted from the network.
 
-Configure the SSN list file in local.bro::
+Configure the SSN list file in local.zeek::
 
 	redef SsnExposure::ssn_file = "/var/data/ssn-list.txt";
 
