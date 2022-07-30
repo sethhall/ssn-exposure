@@ -193,10 +193,13 @@ function check_ssns(c: connection, data: string): bool
 event SsnExposure::stream_data(f: fa_file, data: string)
 	{
 	local c: connection;
-	for ( id in f$conns )
+	if ( f?$conns )
 		{
-		c = f$conns[id];
-		break;
+		for ( id in f$conns )
+			{
+			c = f$conns[id];
+			break;
+			}
 		}
 	if ( c$start_time > network_time()-10secs )
 		check_ssns(c, data);
